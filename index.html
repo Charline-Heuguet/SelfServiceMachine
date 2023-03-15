@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="style.css">
+        <title>Self Service Order</title>
+    </head>
+
+    <body>
+        
+        <main id="app">
+            
+            <section class="items">
+                <h4>Pick your items</h4>
+
+                <!-- on fait une boucle grâce a la directive "for in" pour que ça boucle sur le tableau "products"-->
+                
+                <div 
+                v-for="product in products" 
+                class="product" 
+                v-on:click = "product.active =  !product.active"
+                :class="product.active ? 'selected' : '' "
+                >
+                <!-- La directive v-on est un écouteur d'évènements. on peut aussi ecrit @click au lieu de "v-on:click".
+                Dans le tableau "products", une des ppt est active et est à "false". Pour eviter d'écrire des conditions au clic pour inverser true / false, on écrit " = ! " il retournera automatiquement l'opposé.
+                Concernant le :class="product.active ? 'selected' : '' " cela veut dire "si product.active" est "true" alors nous allons ajouter la classe "selected", si c'est "false", aucune classe ne sera ajoutée. 
+                Une autre façon de l'ecrire en vueJs serait ":class = "{ selected : product.active}" car product.active est true par defaut. --> 
+
+                    <div class="photo">
+                        <!-- quand on veut dynamiser un ATTRIBUT (comme ici la src de l'img), on ne met pas les accolades et on met ":" avant l'attribut -->
+                        <img :src="product.photo">
+                    </div>
+                    <div class="description">
+                        <span class="name">{{product.name}}</span>
+                        <span class="price">{{product.price}}</span>
+                        <!-- le "v-if ici c'est pour montrer ou non la section des quantités si le produit est selectionné (car s'il n'est pas selectionné, on ne voit pas cette partie)" -->
+                        <div class="quantity-area" v-if="product.active">
+                            <!-- Attention, au clic sur les qtés, on ajoute ou enleve aussi la class selected. C'est un pb connu de Javascript: c'est pcq l'evenement click se propage à l'elément parent: il faut definir une methode d'arret de propagation. on utilisera ".stop" https://vuejs.org/guide/essentials/event-handling.html#event-modifiers -->
+
+
+                            <button v-on:click.stop="product.quantity-=1" :disabled="product.quantity <= 1">-</button>
+                            <!-- Si product.quantity est inférieur ou égal a 1 ALORS on veut le desactiver SINON on veut pouvoir cliquer sur le bouton - -->
+                            <span class="quantity">{{product.quantity}}</span>
+                            <button @click.stop="product.quantity++">+</button>
+                            
+                        </div>
+                    </div>
+                </div>
+                
+            </section>
+
+            <section class="summary" v-if="total()>0">
+                <strong>Order Details</strong>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="product in products">
+                            <template v-if="product.active">
+                                <td>{{ product.quantity + 'x ' + product.name}}</td>
+                                <td>{{ (product.quantity * product.price).toFixed(2) }}</td>
+                                <!-- .toFixed arrondit avec 2 décimales -->
+                            </template>
+                        </tr>
+                        
+                        <tr>
+                            <th>Total</th>
+                            <th>{{ total() }}</th>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+        </main>
+
+        <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+        <script src="scripts.js"></script>
+
+    </body>
+
+</html>
